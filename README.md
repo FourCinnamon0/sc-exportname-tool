@@ -1,5 +1,7 @@
 # sc-exportname-tool
 Get the a list of the export names along with their IDs from an SC file
+
+[Translated to Portugese](https://github.com/FourCinnamon0/sc-exportname-tool/tree/portugese) by [GuBF](https://github.com/GuBF)
 # Usage
 ## Command arguments
 `node exportname_tool <input_file.sc> <outputIDs> <saveToFile>`
