@@ -1,5 +1,9 @@
 # sc-exportname-tool
 Get the a list of the export names along with their IDs from an SC file
+# Installation
+**LZMA**
+> `npm install lzma`
+
 # Usage
 ## Command arguments
 `node exportname_tool <input_file.sc> <outputIDs> <saveToFile>`
