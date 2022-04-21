@@ -63,36 +63,36 @@ if(data[0] == 83 && data[1] == 67) {
         end_block_size = (data.slice(-4).readInt32BE())
 
         data = data.slice(14 + hash_length,-end_block_size - 9)
-        console.log("SC header version:",pre_version,"SC format version",version)
+        console.log("Версия SC заголовка:",pre_version,"Версия SC формата",version)
 
     }else{
         version = pre_version
         hash_length = (data.slice(6, 10).readInt32BE())
         data = data.slice(10 + hash_length)
-        console.log("SC version: ",version)
+        console.log("Версия SC: ",version)
     }
 }
 if([null, 1, 3].includes(version)) {
     try{
         if (Buffer.compare(data.slice(0,4), Buffer.from("SCLZ", 'utf8')) == 0) {
-            console.log('[*] Detected LZHAM compression !')
+            console.log('[*] Обнаружено LZHAM сжатие!')
             decompressed = require("sc-compression").decompress(data)
 
         }else if(Buffer.compare(data.slice(0,4), Buffer.from([0x28, 0xB5, 0x2F, 0xFD])) == 0){
-            console.log('[*] Detected Zstandard compression !')
+            console.log('[*] Обнаружено Zstandard сжатие!')
 			const ZstdCodec = require('zstd-codec').ZstdCodec
             decompressed = (new ZstdCodec.Simple()).decompress(data)
 
         }else{
 			const lzma = require("lzma");
-            console.log('[*] Detected LZMA compression !')
+            console.log('[*] Обнаружено LZMA сжатие !')
             data = Buffer.concat([data.slice(0,9), Buffer.from([0,0,0,0]), data.slice(9)])
             decompressed = Buffer.from(lzma.decompress(data))
 
         }
     }catch (e) {
         console.error(e)
-        console.log(`Cannot decompress file!`)
+        console.log(`Невозможно распаковать файл!`)
         return;
     }
 } else {
@@ -121,7 +121,7 @@ if(saveToFile) {
 	}
 	done = function () {
 		fs.writeFileSync("export_names.txt",toWrite)
-		console.log("Saved output to export_names.txt")
+		console.log("Вывод сохранён в export_names.txt")
 	}
 }else{
 	clog = function (...args) {
