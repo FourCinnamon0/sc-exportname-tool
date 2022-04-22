@@ -4,14 +4,19 @@ Get the a list of the export names along with their IDs from an SC file
 [Translated to Portugese](https://github.com/FourCinnamon0/sc-exportname-tool/tree/portugese) by [GuBF](https://github.com/GuBF)
 # Usage
 ## Command arguments
-`node exportname_tool <input_file.sc> <outputIDs> <saveToFile>`
+`node exportname_tool [input_file.sc] <outputIDs?> <saveToFile?>`
 
-`<input_file.sc>` = The file you want to get the export names from
+`[input_file.sc]`  =  The file you want to get the export names from (also supports URLs)
 
-`<outputIDs>`        = Set to `true` if you want to also output export IDs otherwise set to `false` (default `true`)
+`<outputIDs?>`        = Set to `true` if you want to also output export IDs otherwise set to `false` (default `true`)
 
-`<saveToFile>`        = Set to `true` if you want to also save the output to a file otherwise set to `false` (default `false`, saves to file called `export_names.txt`)
+`<saveToFile?>`        = Set to `true` if you want to also save the output to a file otherwise set to `false` (default `false`, saves to file called `export_names.txt`)
 
+\[\] = Required arguments
+
+\<\> = Optional arguments
+
+? = Boolean arguments
 ## Stdin
 Only direct command line input is supported
 
