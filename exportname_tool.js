@@ -43,96 +43,110 @@ class SCChunkReader {
 		this.i += i
 	}
 }
-var data = fs.readFileSync(process.argv[2])
-var showIDs = process.argv[3] === "true"||process.argv[3] === "yes"
-if(!process.argv[3]){
-	showIDs = true
-}
-var saveToFile = process.argv[4] === "true"||process.argv[3] === "yes"
-if(!process.argv[4]){
-	saveToFile = false
-}
-var version = null;var decompressed;
-
-if(data[0] == 83 && data[1] == 67) {
-    pre_version = (data.slice(2, 6).readInt32BE())
-
-    if (pre_version == 4) {
-        version = (data.slice(6, 10).readInt32BE())
-        hash_length = (data.slice(10, 14).readInt32BE())
-        end_block_size = (data.slice(-4).readInt32BE())
-
-        data = data.slice(14 + hash_length,-end_block_size - 9)
-        console.log("SC header version:",pre_version,"SC format version",version)
-
-    }else{
-        version = pre_version
-        hash_length = (data.slice(6, 10).readInt32BE())
-        data = data.slice(10 + hash_length)
-        console.log("SC version: ",version)
-    }
-}
-if([null, 1, 3].includes(version)) {
-    try{
-        if (Buffer.compare(data.slice(0,4), Buffer.from("SCLZ", 'utf8')) == 0) {
-            console.log('[*] Detected LZHAM compression !')
-            decompressed = require("sc-compression").decompress(data)
-
-        }else if(Buffer.compare(data.slice(0,4), Buffer.from([0x28, 0xB5, 0x2F, 0xFD])) == 0){
-            console.log('[*] Detected Zstandard compression !')
-			const ZstdCodec = require('zstd-codec').ZstdCodec
-            decompressed = (new ZstdCodec.Simple()).decompress(data)
-
-        }else{
-			const lzma = require("lzma");
-            console.log('[*] Detected LZMA compression !')
-            data = Buffer.concat([data.slice(0,9), Buffer.from([0,0,0,0]), data.slice(9)])
-            decompressed = Buffer.from(lzma.decompress(data))
-
-        }
-    }catch (e) {
-        console.error(e)
-        console.log(`Cannot decompress file!`)
-        return;
-    }
-} else {
-    decompressed = data
-}
-// console.log(decompressed)
-var reader = new SCChunkReader(decompressed)
-var shapeCount = reader.readInt16()
-var animationsCount = reader.readInt16()
-var texturesCount = reader.readInt16()
-var textFieldsCount = reader.readInt16()
-var matricesCount = reader.readInt16()
-var colorTransformsCount = reader.readInt16()
-reader.skip(5)
-
-var exportCount = reader.readInt16();
-var exportIDs = [];var exports = []
-for (let i = 0; i < exportCount; i++) {
-	exportIDs.push(reader.readInt16());
-}
-var toWrite = ""
-if(saveToFile) {
-	clog = function (...args) {
-		toWrite = toWrite + args.join(" ") + "\n"
-		console.log(...args)
+async function start() {
+	if(!process.argv[2]){
+		return console.log("Usage: `node exportname_tool <input_file.sc> [outputIDs?] [saveToFile?]`\n\n<> represents required arguments\n[] represents optional arguments\n? represents boolean arguments")
 	}
-	done = function () {
-		fs.writeFileSync("export_names.txt",toWrite)
-		console.log("Saved output to export_names.txt")
+	if(process.argv[2].startsWith("http")){
+		fetch = require("node-fetch")
 	}
-}else{
-	clog = function (...args) {
-		console.log(...args)
+	var data = process.argv[2].startsWith("http") ? await (await fetch(process.argv[2], {"headers": {"sec-ch-ua": "\" Not A;Brand\";v=\"99\", \"Chromium\";v=\"100\", \"Google Chrome\";v=\"100\"","sec-ch-ua-mobile": "?0","sec-ch-ua-platform": "\"Windows\"","sec-fetch-dest": "document","sec-fetch-mode": "navigate","sec-fetch-site": "none","sec-fetch-user": "?1","upgrade-insecure-requests": "1",},"referrerPolicy": "strict-origin-when-cross-origin","body": null,"method": "GET"})).buffer():fs.readFileSync(process.argv[2])
+	var showIDs = process.argv[3]?.toLowerCase() === "true"||process.argv[3]?.toLowerCase() === "yes"||process.argv[3]?.toLowerCase() === "y"
+	if(!process.argv[3]){
+		showIDs = true
 	}
-	done = function () {}
+	var saveToFile = process.argv[4]?.toLowerCase() === "true"||process.argv[4]?.toLowerCase() === "yes"||process.argv[4]?.toLowerCase() === "y"
+	if(!process.argv[4]){
+		saveToFile = false
+	}
+	var version = null;var decompressed;
+
+	if(data[0] == 83 && data[1] == 67) {
+		pre_version = (data.slice(2, 6).readInt32BE())
+
+		if (pre_version == 4) {
+			version = (data.slice(6, 10).readInt32BE())
+			hash_length = (data.slice(10, 14).readInt32BE())
+			end_block_size = (data.slice(-4).readInt32BE())
+
+			data = data.slice(14 + hash_length,-end_block_size - 9)
+			console.log("SC header version:",pre_version,"SC format version",version)
+
+		}else{
+			version = pre_version
+			hash_length = (data.slice(6, 10).readInt32BE())
+			data = data.slice(10 + hash_length)
+			console.log("SC version: ",version)
+		}
+	}else{
+		console.log("No header, continuing")
+	}
+	if([null, 1, 3].includes(version)) {
+		try{
+			if (Buffer.compare(data.slice(0,4), Buffer.from("SCLZ", 'utf8')) == 0) {
+				console.log('[*] Detected LZHAM compression !')
+				decompressed = require("sc-compression").decompress(data)
+
+			}else if(Buffer.compare(data.slice(0,4), Buffer.from([0x28, 0xB5, 0x2F, 0xFD])) == 0){
+				console.log('[*] Detected Zstandard compression !');
+				const ZstdCodec = require('zstd-codec').ZstdCodec;
+				await new Promise((resolve, reject) => {
+					ZstdCodec.run(zstd => {
+						decompressed = Buffer.from((new zstd.Simple()).decompress(data));
+						resolve();
+					})
+				})
+			}else{
+				const lzma = require("lzma");
+				console.log('[*] Detected LZMA compression !')
+				data = Buffer.concat([data.slice(0,9), Buffer.from([0,0,0,0]), data.slice(9)])
+				decompressed = Buffer.from(lzma.decompress(data))
+			}
+		}catch (e) {
+			console.error(e)
+			console.log(`Cannot decompress file!`)
+			return;
+		}
+	} else {
+		decompressed = data
+	}
+	// console.log(decompressed)
+	var reader = new SCChunkReader(decompressed)
+	var shapeCount = reader.readInt16()
+	var animationsCount = reader.readInt16()
+	var texturesCount = reader.readInt16()
+	var textFieldsCount = reader.readInt16()
+	var matricesCount = reader.readInt16()
+	var colorTransformsCount = reader.readInt16()
+	reader.skip(5)
+
+	var exportCount = reader.readInt16();
+	var exportIDs = [];var exports = []
+	for (let i = 0; i < exportCount; i++) {
+		exportIDs.push(reader.readInt16());
+	}
+	var toWrite = ""
+	if(saveToFile) {
+		clog = function (...args) {
+			toWrite = toWrite + args.join(" ") + "\n"
+			console.log(...args)
+		}
+		done = function () {
+			fs.writeFileSync("export_names.txt",toWrite)
+			console.log("Saved output to export_names.txt")
+		}
+	}else{
+		clog = function (...args) {
+			console.log(...args)
+		}
+		done = function () {}
+	}
+	for (let i = 0; i < exportCount; i++) {
+		exports.push(reader.readString());
+		if(showIDs) {clog(exportIDs[i],exports[i])}else{clog(exports[i])}
+		
+	}
+	done()
+	// console.log(exportIDs,exports)
 }
-for (let i = 0; i < exportCount; i++) {
-	exports.push(reader.readString());
-	if(showIDs) {clog(exportIDs[i],exports[i])}else{clog(exports[i])}
-	
-}
-done()
-// console.log(exportIDs,exports)
+start();
