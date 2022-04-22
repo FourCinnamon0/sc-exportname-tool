@@ -1,23 +1,22 @@
-# sc-exportname-tool
-Get the a list of the export names along with their IDs from an SC file
+# sc-exportname-tool-ru
+Экспортирует список имён вместе с их ID из SC файла.
 
-[Translated to Portugese](https://github.com/FourCinnamon0/sc-exportname-tool/tree/portugese) by [GuBF](https://github.com/GuBF)
-# Usage
-## Command arguments
+# Использование
+## Аргументы команды.
 `node exportname_tool <input_file.sc> <outputIDs> <saveToFile>`
 
-`<input_file.sc>` = The file you want to get the export names from
+`<input_file.sc>` = Файл откуда нужно экспортировать имена.
 
-`<outputIDs>`        = Set to `true` if you want to also output export IDs otherwise set to `false` (default `true`)
+`<outputIDs>`        = Установите на `true`, если вы хотите вывести ID экспортированных имён. В противном случае поставьте `false` (по умолчанию `true`)
 
-`<saveToFile>`        = Set to `true` if you want to also save the output to a file otherwise set to `false` (default `false`, saves to file called `export_names.txt`)
+`<saveToFile>`        = Установите на `true`, если вы хотите сохранить вывод в файл. В противном случае поставьте `false` (по умолчанию `false`, сохраняет в файл `export_names.txt`)
 
 ## Stdin
-Only direct command line input is supported
+Поддерживается только прямой ввод командной строки
 
-# License
-This code is licensed under GPLv3!
+# Лицензия
+Этот код находится под лицензией GPLv3!
 
-Any software that uses any GPL open source component (**regardless of its percentage in the entire code**) is required to release its full source code and all of the rights to modify and distribute the entire code.
+От любого программного обеспечения, использующего любой GPL компонент с открытым исходным кодом (**не зависит от его доли во всём коде**) требуется выложить полный исходный код и все права на модификацию и распространения всего кода.
 
-Also please don't pretend you made this
+И пожалуйста, не делайте вид что вы разработали это.
