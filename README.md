@@ -1,9 +1,9 @@
-# sc-exportname-tool
-Get the a list of the export names along with their IDs from an SC file
+# sc-exportname-tool-ru
+Экспортирует список имён вместе с их ID из SC файла.
 
-[Translated to Portugese](https://github.com/FourCinnamon0/sc-exportname-tool/tree/portugese) by [GuBF](https://github.com/GuBF)
-# Usage
-## Command arguments
+[Перевод на Португальский](https://github.com/FourCinnamon0/sc-exportname-tool/tree/portugese) от [GuBF](https://github.com/GuBF)
+# Использование
+## Аргументы команды.
 `node exportname_tool <input_file.sc> [Выводить ID?] [Сохранять в файл?]`
 
 `<input_file.sc>`  =  Файл откуда нужно экспортировать имена. (Также поддерживается URL)
